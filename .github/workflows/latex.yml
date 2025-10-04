@@ -1,0 +1,43 @@
+name: Build CV PDF
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Tectonic
+        run: |
+          curl -L https://github.com/tectonic-typesetting/tectonic/releases/latest/download/tectonic-x86_64-unknown-linux-gnu.tar.gz \
+          | tar xz --strip-components=1 -C /usr/local/bin
+
+      - name: Build PDF with Tectonic
+        run: |
+          tectonic -X compile cv.tex --keep-intermediates --reruns 1
+          mkdir -p public
+          cp cv.pdf public/cv.pdf
+          # optional: make a simple landing page
+          echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CV</title><meta http-equiv="refresh" content="0; url=cv.pdf"><p><a href="cv.pdf">Open CV</a></p>' > public/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

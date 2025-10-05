@@ -16,18 +16,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Tectonic
+      - name: Install TeX Live + latexmk
         run: |
           sudo apt-get update
-          sudo apt-get install -y tectonic
+          # These cover geometry, hyperref, xcolor, parskip, enumitem, fontawesome5, etc.
+          sudo apt-get install -y \
+            latexmk \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-extra
 
-      - name: Build PDF with Tectonic
+      - name: Build PDF with latexmk
         run: |
-          tectonic -X compile cv.tex --keep-intermediates --reruns 1
+          # Compile; reruns as needed to resolve refs
+          latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error cv.tex
+          # Publish artifacts
           mkdir -p public
           cp cv.pdf public/cv.pdf
-          # simple landing page that redirects to the PDF
-          echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CV</title><meta http-equiv="refresh" content="0; url=cv.pdf"><p><a href="cv.pdf">Open CV</a></p>' > public/index.html
+          # Simple landing page that redirects to the PDF
+          cat > public/index.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>CV</title>
+          <meta http-equiv="refresh" content="0; url=cv.pdf">
+          <p><a href="cv.pdf">Open CV</a></p>
+          HTML
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

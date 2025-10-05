@@ -16,10 +16,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Tectonic
-        run: |
-          curl -L https://github.com/tectonic-typesetting/tectonic/releases/latest/download/tectonic-x86_64-unknown-linux-gnu.tar.gz \
-          | tar xz --strip-components=1 -C /usr/local/bin
+      - name: Setup Tectonic
+        uses: tectonic-typesetting/setup-tectonic@v1
 
       - name: Build PDF with Tectonic
         run: |

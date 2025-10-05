@@ -16,15 +16,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Tectonic
-        uses: tectonic-typesetting/setup-tectonic@v1
+      - name: Install Tectonic
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tectonic
 
       - name: Build PDF with Tectonic
         run: |
           tectonic -X compile cv.tex --keep-intermediates --reruns 1
           mkdir -p public
           cp cv.pdf public/cv.pdf
-          # optional: make a simple landing page
+          # simple landing page that redirects to the PDF
           echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CV</title><meta http-equiv="refresh" content="0; url=cv.pdf"><p><a href="cv.pdf">Open CV</a></p>' > public/index.html
 
       - name: Upload Pages artifact
